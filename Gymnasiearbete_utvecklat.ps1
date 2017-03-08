@@ -1,4 +1,4 @@
-﻿function Get-ComputerInfo
+function Get-ComputerInfo
 {
     [CmdletBinding()]
     Param
@@ -8,18 +8,19 @@
     )
 
     Begin
-    {
+    { 
+        $cim = New-CimSession -ComputerName $ArrComputers
     }
     Process
     {
-        $cim = New-CimSession -ComputerName $ArrComputers
+       
         
-        $computerBIOS   = Get-CimInstance -CimSession $cim -ClassName Win32_BIOS
-        $computerSystem = Get-CimInstance -CimSession $cim -ClassName Win32_ComputerSystem
-        $computerOS     = Get-CimInstance -CimSession $cim -ClassName Win32_OperatingSystem
-        $computerCPU    = Get-CimInstance -CimSession $cim -ClassName Win32_Processor
-        $computerHDD    = Get-CimInstance -CimSession $cim -ClassName Win32_LogicalDisk
-        Get-CimSession | Remove-CimSession
+        $computerBIOS   = Get-CimInstance -CimSession $cim -ClassName Win32_BIOS -Property 'SerialNumber'
+        $computerSystem = Get-CimInstance -CimSession $cim -ClassName Win32_ComputerSystem -Property 'Manufacturer','Model','TotalPhysicalMemory','UserName'
+        $computerOS     = Get-CimInstance -CimSession $cim -ClassName Win32_OperatingSystem -Property 'caption','LastBootUpTime'
+        $computerCPU    = Get-CimInstance -CimSession $cim -ClassName Win32_Processor -Property 'Name'
+        $computerHDD    = Get-CimInstance -CimSession $cim -ClassName Win32_LogicalDisk -Property 'Size','FreeSpace'
+        
         
         foreach ($computer in $ArrComputers)
         {
@@ -47,5 +48,6 @@
     }
     End
     {
+        $cim | Remove-CimSession
     }
 }
